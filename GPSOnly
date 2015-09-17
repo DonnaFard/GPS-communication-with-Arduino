@@ -1,0 +1,31 @@
+#include <SoftwareSerial.h>
+#include <TinyGPS.h>
+
+#define rxPin 2
+#define txPin 3
+
+long lat,lon; // create variable for latitude and longitude object
+ 
+SoftwareSerial gpsSerial(rxPin, txPin); // create gps sensor connection
+TinyGPS gps; // create gps object
+ 
+void setup(){
+  Serial.begin(115200); // connect serial
+  Serial.println("start GPS data");
+  gpsSerial.begin(57600); // connect gps sensor
+  gpsSerial.print("$PMTK314,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29\r\n");
+  gpsSerial.print("$PMTK220,200*2C\r\n");
+}
+ 
+void loop(){
+  while(gpsSerial.available()){ // check for gps data
+  unsigned char GPS=gpsSerial.read();
+   if(gps.encode(GPS)){ // encode gps data
+    gps.get_position(&lat,&lon); // get latitude and longitude
+    // display position
+    Serial.print("Position: ");
+    Serial.print("lat: ");Serial.print(lat);Serial.print(" ");// print latitude
+    Serial.print("lon: ");Serial.println(lon); // print longitude
+   }
+  }
+}
